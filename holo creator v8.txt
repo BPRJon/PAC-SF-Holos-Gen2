@@ -1,0 +1,72 @@
+--@name Holo Creator V8
+--@author jon b
+--@server
+--reccomend to use with PAC > E2 > SF Holo converter
+--https://github.com/BPRJon/PAC-to-Starfall-Holos
+
+maxquota = 0.6 --How much CPU quota the function can use. 1 is 100% quota .01 is 1% quota.
+printdone = true --set to false if you dont want it to tell you when it is done loading
+--default values
+pos = Vector()
+ang = Angle()
+model = "models/balloons/balloon_dog.mdl"
+scale = Vector(1)
+--optional values
+--anything here you can set to nil to skip
+color = Color(255,0,0,255)
+mat = ""
+parent = nil --set this to either an entity, OR put the string name of a parent holo that is also in the CreationTable and it will be parentedmm
+name = nil --a string to identify the holo as so it can be put in the Holos table. Also used to find the holo if another holo wants to parent to it
+clips = nil --{{Vector(),Vector(0,1,0)}}
+--[[
+HOLO CLIPS
+
+we load clips form the 'clips' subtable, every clip must also be a subtable
+each clip needs a position and normal, both vectors
+(ex: {{Vector(0,0,0),Vector(0,1,0)},{Vector(0,20,0),Vector(1,0,0)}})
+]]
+
+Holos = {} -- <- dont touch this one
+CreationTable = {
+    {pos,ang,model,scale,color,mat,parent,name,clips}
+}
+
+
+function CreateHolos(holotbl)
+    local holoindex = 0
+    local holos = {}
+    hook.add("tick","holo-creation-tick",function()
+        while chip():getQuotaUsed() < chip():getQuotaMax()*maxquota and holoindex < table.count(holotbl) do
+            holoindex = holoindex + 1
+            local holodata = holotbl[holoindex]
+            local holo = hologram.create(holodata[1]+chip():getPos(),holodata[2],holodata[3],holodata[4])
+            holos[holoindex] = holo
+            if holodata[5] ~= nil then
+                holo:setColor(holodata[5])
+            end
+            if holodata[6] ~= nil then
+                holo:setMaterial(holodata[6])
+            end
+            if holodata[7] ~= nil then
+                if type(holodata[7]) == "string" then
+                    holo:setParent(Holos[holodata[7]])
+                else
+                    holo:setParent(holodata[7])
+                end
+            end
+            if holodata[8] ~= nil then
+                Holos[holodata[8]] = holo
+            end
+            if holodata[9] ~= nil then
+                for i,v in pairs(holodata[9]) do
+                    holo:setClip(i,true,v[1],v[2],holo)
+                end
+            end
+            if printdone and holoindex == table.count(holotbl) then
+                print("Holos Created!")
+            end
+        end
+    end)
+end
+
+CreateHolos(CreationTable)

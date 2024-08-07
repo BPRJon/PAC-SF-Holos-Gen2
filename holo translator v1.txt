@@ -1,0 +1,90 @@
+--@name PAC > E2 > Starfall Holo Convertor
+--@author jon b
+--@shared
+if SERVER then
+code = [[
+@name The Sacrifice
+@outputs [HT CT]:table
+@persist I HN CN Base:entity
+Base = entity()
+A = 0
+#VVV##############################################VVV#
+
+#Holo Data goes here!!! /// Replace this line!!!
+
+#^^^##############################################^^^#
+while(perf() & A < HT:count()){
+    A++
+    HT[A,table][10,table] = table(HT[A,table][10,vector4]:x(),HT[A,table][10,vector4]:y(),HT[A,table][10,vector4]:z(),HT[A,table][10,vector4]:w())
+}
+]]
+data = {
+    _name = "pac>e2 but back to sf",
+    _original = code,
+    inc_files = {},
+    Model = "models/beer/wiremod/gate_e2.mdl"
+}
+HT = {}
+CT = {}
+e2 = prop.createSent(chip():getPos()+Vector(0,0,5),Angle(),"gmod_wire_expression2",true,data)
+wire.adjustInputs({"HT","CT"},{"table","table"})
+wire.create(chip(),e2,"HT","HT")
+wire.create(chip(),e2,"CT","CT")
+hook.add("input","e2datatransfer",function(name,val)
+    if name == "HT" then
+        HT = val
+    else
+        CT = val
+    end
+    end)
+timer.simple(2,function()
+    net.start("S2C-E2convert")
+        net.writeTable(HT)
+        net.writeTable(CT)
+    net.send(owner())
+end)
+end
+
+if CLIENT then
+local function matvalid(str)
+    if str == "" then return "nil"
+    else return "\""..str.."\"" end
+end
+    local message = "CreationTable = {\n"
+    net.receive("S2C-E2convert",function()
+        local HT = net.readTable()
+        local CT = net.readTable()
+        local clipid = 1
+        for i,v in pairs(HT) do
+            local clipdata = ",{"
+            for k,n in pairs(CT) do
+                if k+1 <= table.count(CT) then
+                    nextclip = CT[k+1][1] == i
+                else
+                    nextclip = false
+                end
+                if k == table.count(CT) and n[1] ~= i then
+                    clipdata = clipdata.."}"
+                elseif n[1] == i and nextclip then
+                    clipdata = clipdata.."{Vector("..n[3].x..","..n[3].y..","..n[3].z.."),Vector("..n[4].x..","..n[4].y..","..n[4].z..")},"
+                elseif k == table.count(CT) and n[1] == i then
+                    clipdata = clipdata.."{Vector("..n[3].x..","..n[3].y..","..n[3].z.."),Vector("..n[4].x..","..n[4].y..","..n[4].z..")}}"
+                elseif n[1] == i and not nextclip then
+                    clipdata = clipdata.."{Vector("..n[3].x..","..n[3].y..","..n[3].z.."),Vector("..n[4].x..","..n[4].y..","..n[4].z..")}"
+                
+                end
+            end
+            local holodata = "{Vector("..v[5].x..","..v[5].y..","..v[5].z.."),Angle("..v[6].p..","..v[6].y..","..v[6].r.."),\""..v[8].."\",Vector("..v[7].x..","..v[7].y..","..v[7].z.."),Color("..v[10][1]..","..v[10][2]..","..v[10][3]..","..v[10][4].."),"..matvalid(v[9])..",parent,name"..clipdata.."}"
+            if i < table.count(HT) then
+                message = message..holodata..",\n"
+            else
+                message = message..holodata.."\n}"
+            end
+            
+            if i == table.count(HT) then
+                setClipboardText(message)
+                notification.addLegacy("Copied text to clipboard",0,3)
+            end
+        end
+    end)
+end
