@@ -1,0 +1,65 @@
+--@name PAC > E2 > Starfall Holo Convertor v2
+--@author jon b
+--@client
+if player()==owner() then
+    
+    local path = "data/pac3/astromech v1.txt" --make this your path to the file from /garrysmod/ including .txt at the end
+    --"data/pac3/"
+    
+    local pacdataFunc = loadstring(string.format("return {%s}",file.readInGame(path)))
+    local pacdata = pacdataFunc()
+    
+    if not file.exists("PAC2STARFALL/") then file.createDir("PAC2STARFALL/") end
+    
+    local pac_model,pac_group,pac_clip = "model2","group","clip2"
+    local PAC2SF
+    
+    local holo_data = {}
+    local table_insert = table.insert
+    local table_count = table.count
+    local parent
+    
+    function PAC2SF(tbl)
+        for key,value in pairs(tbl) do
+            local cliptbl = {}
+            
+            if type(key) == "number" then
+                local _self = value["self"]
+                local _children = value["children"]
+                if _self.ClassName == pac_model then
+                    parent = table_insert(holo_data,{
+                        Index = _self.Name,
+                        Position = _self.Position,
+                        Angle = _self.Angles,
+                        Model = _self.Model,
+                        Scale = _self.Scale*_self.Size,
+                        Material = _self.Material,
+                        Color = Color(_self.Color.x,_self.Color.y,_self.Color.z)*255,
+                        Parent = _self.Parent,
+                        Clips = cliptbl
+                    })
+                    for _,v in pairs(_children) do
+                        local _self = v["self"]
+                        
+                        if _self.ClassName == pac_clip then
+                            table_insert(cliptbl,{
+                                Origin = _self.Position,
+                                Normal = _self.Angles:getForward()
+                            })
+                        elseif _self.ClassName == pac_model then
+                            _self.Parent = parent
+                        end
+                    end
+                    holo_data[parent].Clips = cliptbl
+                end
+            end
+            if type(value) == "table" then
+                PAC2SF(value)
+            end
+        end
+    end
+    
+    PAC2SF(pacdata)
+    
+    file.write("PAC2STARFALL/"..string.explode("/",path)[table.count(string.explode("/",path))],von.serialize(holo_data))
+end

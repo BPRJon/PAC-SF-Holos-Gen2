@@ -1,0 +1,35 @@
+--@name Holo Creator V10
+--@author jon b
+--@shared
+--see github for instructions
+load_filedata = "pac2starfall/astromech v1.txt" --sf_filedata path to the holograms you wanna load
+
+if SERVER then
+    local default_parent = chip()
+    
+    Holos = {}
+    CreationTable = {}
+    
+    net.receive("Load_FileData",function() net.readStream(function(data)
+        CreationTable = von.deserialize(bit.decompress(data))
+        CreateHolograms(CreationTable)
+        end) end)
+    
+    function CreateHolograms(holo_data)
+        for i,v in pairs(holo_data) do
+            local holo = hologram.create(chip():getPos()+v.Position,v.Angle,v.Model,v.Scale)
+            holo:setMaterial(v.Material)
+            holo:setColor(v.Color)
+            for i,v in pairs(v.Clips) do
+                holo:setClip(i,true,v.Origin,v.Normal,holo)
+            end
+            if v.Parent ~= nil then holo:setParent(Holos[v.Parent]) holo:setPos(Holos[v.Parent]:localToWorld(v.Position)) else holo:setParent(default_parent) end
+            table.insert(Holos,holo)
+        end
+    end
+    
+elseif CLIENT then
+    if player()==owner() then
+        if load_filedata ~= nil and load_filedata ~= "" then local data = file.read(load_filedata) net.start("Load_FileData") net.writeStream(bit.compress(data)) net.send() end
+    end
+end
