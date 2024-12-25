@@ -2,6 +2,7 @@
 Two Starfall chips to allow you to convert a PAC3 to Holos able to be used for holomechs. This isn't made to take a character PAC and convert it to SF unfortately, just to make the process of creating Holomechs in Starfall a lot easier
 
 # How to use
+[Here](https://youtu.be/26LFWriORqQ) is a link to a youtube video of me using the chips.
 
 ## Holo Translator V2
 - Line 6 has a variable called path, set the string inside to the path to your PAC file relative to the `/garrysmod/` folder. *MAKE SURE TO INCLUDE .TXT AT THE END*
