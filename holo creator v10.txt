@@ -6,6 +6,7 @@ load_filedata = "pac2starfall/astromech v1.txt" --sf_filedata path to the hologr
 
 if SERVER then
     local default_parent = chip()
+    local pos_offset = Vector()
     
     Holos = {}
     CreationTable = {}
@@ -16,8 +17,9 @@ if SERVER then
         end) end)
     
     function CreateHolograms(holo_data)
+        local parentPos = default_parent:getPos()
         for i,v in pairs(holo_data) do
-            local holo = hologram.create(default_parent:getPos()+v.Position,v.Angle,v.Model,v.Scale)
+            local holo = hologram.create(parentPos+pos_offset+v.Position,v.Angle,v.Model,v.Scale)
             holo:setMaterial(v.Material)
             holo:setColor(v.Color)
             for i,v in pairs(v.Clips) do
