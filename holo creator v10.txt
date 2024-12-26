@@ -17,7 +17,7 @@ if SERVER then
     
     function CreateHolograms(holo_data)
         for i,v in pairs(holo_data) do
-            local holo = hologram.create(chip():getPos()+v.Position,v.Angle,v.Model,v.Scale)
+            local holo = hologram.create(default_parent:getPos()+v.Position,v.Angle,v.Model,v.Scale)
             holo:setMaterial(v.Material)
             holo:setColor(v.Color)
             for i,v in pairs(v.Clips) do
