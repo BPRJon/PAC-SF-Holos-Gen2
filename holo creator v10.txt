@@ -25,9 +25,10 @@ if SERVER then
             for i,v in pairs(v.Clips) do
                 holo:setClip(i,true,v.Origin,v.Normal,holo)
             end
-            if v.Parent ~= nil then holo:setParent(Holos[v.Parent]) holo:setPos(Holos[v.Parent]:localToWorld(v.Position)) else holo:setParent(default_parent) end
-            table.insert(Holos,holo)
+            if v.Parent ~= nil then holo:setParent(Holos[v.Parent]) holo:setPos(Holos[v.Parent]:localToWorld(v.Position)) holo:setAngles(Holos[v.Parent]:localToWorldAngles(v.Angle)) else holo:setParent(default_parent) end
+            if v.Index ~= "" then Holos[v.Index] = holo else Holos[i] = holo end
         end
+        return true
     end
     
 elseif CLIENT then
