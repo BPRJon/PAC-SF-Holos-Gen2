@@ -1,6 +1,7 @@
 --@name PAC > E2 > Starfall Holo Convertor v2
 --@author jon b
 --@client
+--see github for instructions https://github.com/BPRJon/PAC-SF-Holos-Gen2
 if player()==owner() then
     
     local path = "data/pac3/astromech v1.txt" --make this your path to the file from /garrysmod/ including .txt at the end
@@ -39,15 +40,16 @@ if player()==owner() then
                         Clips = cliptbl
                     })
                     for _,v in pairs(_children) do
-                        local _self = v["self"]
+                        local c_self = v["self"]
                         
-                        if _self.ClassName == pac_clip then
+                        if c_self.ClassName == pac_clip then
                             table_insert(cliptbl,{
-                                Origin = _self.Position,
-                                Normal = _self.Angles:getForward()
+                                Origin = c_self.Position,
+                                Normal = c_self.Angles:getForward()
                             })
-                        elseif _self.ClassName == pac_model then
-                            _self.Parent = parent
+                        elseif c_self.ClassName == pac_model then
+                            if _self.Name ~= "" then c_self.Parent = _self.Name
+                            else c_self.Parent = parent end
                         end
                     end
                     holo_data[parent].Clips = cliptbl

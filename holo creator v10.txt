@@ -1,7 +1,7 @@
 --@name Holo Creator V10
 --@author jon b
 --@shared
---see github for instructions
+--see github for instructions https://github.com/BPRJon/PAC-SF-Holos-Gen2
 load_filedata = "pac2starfall/astromech v1.txt" --sf_filedata path to the holograms you wanna load
 
 if SERVER then
@@ -21,14 +21,31 @@ if SERVER then
         for i,v in pairs(holo_data) do
             local holo = hologram.create(parentPos+pos_offset+v.Position,v.Angle,v.Model,v.Scale)
             holo:setMaterial(v.Material)
-            holo:setColor(v.Color)
+            holo:setColor(Color(v.Color.r,v.Color.g,v.Color.b,v.Color.a))
             for i,v in pairs(v.Clips) do
                 holo:setClip(i,true,v.Origin,v.Normal,holo)
             end
-            if v.Parent ~= nil then holo:setParent(Holos[v.Parent]) holo:setPos(Holos[v.Parent]:localToWorld(v.Position)) holo:setAngles(Holos[v.Parent]:localToWorldAngles(v.Angle)) else holo:setParent(default_parent) end
+            if v.Parent then holo:setParent(Holos[v.Parent]) holo:setLocalPos(v.Position) holo:setLocalAngles(v.Angle) else holo:setParent(default_parent) end
             if v.Index ~= "" then Holos[v.Index] = holo else Holos[i] = holo end
         end
         return true
+    end
+    function JumbleHolos(holos,holo_data)
+        for _,v in pairs(holos) do
+            v:setPos(Vector()) v:setAngles(Angle()) v:setScale(Vector(1)) v:setMaterial("maxofs2d/models/cube_tool") v:setColor(Color(255,255,255,255)) v:setParent(nil)
+        end
+        timer.simple(1,function()
+            for i,v in pairs(holo_data) do
+                local holo = holos[i]
+                if v.Index ~= "" then holo = holos[v.Index] end
+                holo:setPos(default_parent:getPos()+v.Position) holo:setAngles(v.Angle) holo:setScale(v.Scale) holo:setMaterial(v.Material) holo:setColor(v.Color)
+                if v.Parent ~= nil then
+                    holo:setParent(holos[v.Parent]) holo:setLocalPos(v.Position) holo:setLocalAngles(v.Angle)
+                else
+                    holo:setParent(default_parent)
+                end
+            end
+        end)
     end
     
 elseif CLIENT then
