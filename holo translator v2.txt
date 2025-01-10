@@ -4,7 +4,7 @@
 --see github for instructions https://github.com/BPRJon/PAC-SF-Holos-Gen2
 if player()==owner() then
     
-    local path = "data/pac3/astromech v1.txt" --make this your path to the file from /garrysmod/ including .txt at the end
+    local path = "data/pac3/submarine 1.txt" --make this your path to the file from /garrysmod/ including .txt at the end
     --"data/pac3/"
     
     local pacdataFunc = loadstring(string.format("return {%s}",file.readInGame(path)))

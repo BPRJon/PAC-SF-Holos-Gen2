@@ -21,7 +21,8 @@ if SERVER then
         for i,v in pairs(holo_data) do
             local holo = hologram.create(parentPos+pos_offset+v.Position,v.Angle,v.Model,v.Scale)
             holo:setMaterial(v.Material)
-            holo:setColor(Color(v.Color.r,v.Color.g,v.Color.b,v.Color.a))
+            if type(v.Color) ~= "color" then v.Color = Color(v.Color.r,v.Color.g,v.Color.b,v.Color.a) end
+            holo:setColor(v.Color)
             for i,v in pairs(v.Clips) do
                 holo:setClip(i,true,v.Origin,v.Normal,holo)
             end
